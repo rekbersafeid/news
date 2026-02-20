@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Detail Berita | REKBERSAFE.ID NEWS</title>
+  <meta name="description" content="Berita game, MOBA,Jasa Rekber dan edukasi transaksi aman hanya di REKBERSAFE.ID NEWS.">
+
+  <!-- FONT EDITORIAL -->
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="header">
+  <div class="container header-inner">
+    <div class="brand">
+      <h1>REKBERSAFE.ID</h1>
+      <span class="tagline">MOBA NEWS</span>
+    </div>
+
+    <nav class="nav">
+      <ul>
+        <li><a href="index.html">HOME</a></li>
+        <li><a href="news.html">NEWS</a></li>
+        <li><a href="about.html">ABOUT</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="header-divider"></div>
+</header>
+
+<!-- ================= CONTENT ================= -->
+<main class="article-layout container">
+
+  <!-- ===== MAIN ARTICLE ===== -->
+  <article class="article-main">
+
+    <h1 id="article-title"></h1>
+
+    <div class="article-meta">
+      <span id="article-date"></span>
+      ·
+      <span id="article-category"></span>
+    </div>
+
+    <img id="article-image" class="article-image" alt="">
+
+    <div class="article-content" id="article-content"></div>
+
+  </article>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="article-sidebar">
+    <h4>Berita Terkait</h4>
+    <div id="related-news"></div>
+  </aside>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer-news">
+  <div class="footer-bottom">
+    <div class="footer-wrap footer-bottom-wrap">
+      <p>© 2026 <strong>REKBERSAFE.ID NEWS</strong>. All rights reserved.</p>
+      <p class="footer-disclaimer">
+        Portal berita gaming & edukasi transaksi aman.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= SCRIPT ================= -->
+<script>
+const BIN_URL = "https://api.jsonbin.io/v3/b/6994eec043b1c97be986f762";
+const API_KEY = "$2a$10$CRpUuQhcfh0vNYFxICLlwO7LrdzbWhCKwXJKD44is4DkVq8SjXv8G";
+
+let ALL_NEWS = [];
+
+async function loadDetail() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  if (!id) {
+    document.getElementById("article-content").innerHTML =
+      "<p>Berita tidak ditemukan.</p>";
+    return;
+  }
+
+  try {
+    const res = await fetch(BIN_URL, {
+      headers: { "X-Master-Key": API_KEY }
+    });
+
+    const json = await res.json();
+    ALL_NEWS = json.record.news || [];
+
+    const item = ALL_NEWS.find(n => String(n.id) === String(id));
+    if (!item) {
+      document.getElementById("article-content").innerHTML =
+        "<p>Berita tidak ditemukan.</p>";
+      return;
+    }
+
+    renderArticle(item);
+    renderRelated(item);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("article-content").innerHTML =
+      "<p>Gagal memuat berita.</p>";
+  }
+}
+
+function renderArticle(item) {
+  document.getElementById("article-title").innerText = item.title;
+  document.getElementById("article-category").innerText = item.category.toUpperCase();
+  document.getElementById("article-date").innerText =
+    item.updatedAt ? `Update: ${item.updatedAt}` : `Publish: ${item.publishedAt}`;
+
+  const img = document.getElementById("article-image");
+  img.src = item.image;
+  img.alt = item.title;
+  
+
+  document.getElementById("article-content").innerHTML =
+    item.content || `<p>${item.excerpt}</p>`;
+
+  // SEO title dinamis
+  document.title = item.title + " | REKBERSAFE.ID NEWS";
+  setSeoMeta(item);
+
+}
+
+function renderRelated(current) {
+  const wrap = document.getElementById("related-news");
+  const related = ALL_NEWS
+    .filter(n => n.id !== current.id && n.category === current.category)
+    .slice(0, 3);
+
+  wrap.innerHTML = "";
+
+  related.forEach(n => {
+    wrap.innerHTML += `
+      <div class="related-item">
+        <a href="detail.html?id=${n.id}">
+          <img src="${n.image}" alt="${n.title}">
+          <h5>${n.title}</h5>
+        </a>
+      </div>
+    `;
+  });
+}
+
+
+function setSeoMeta(item) {
+  // TITLE
+  document.title = item.title + " | REKBERSAFE.ID NEWS";
+
+  // META DESCRIPTION
+  let desc = item.excerpt || "";
+  desc = desc.replace(/<[^>]*>?/gm, ""); // bersihin HTML
+
+  if (desc.length > 140) {
+    desc = desc.substring(0, 137) + "...";
+  }
+
+  desc += " Baca berita gaming terpercaya di REKBERSAFE.ID NEWS.";
+
+  let meta = document.querySelector("meta[name='description']");
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.name = "description";
+    document.head.appendChild(meta);
+  }
+
+  meta.setAttribute("content", desc);
+}
+
+
+loadDetail();
+</script>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Transaksi Game Aman di Tengah Maraknya Penipuan: Panduan Lengkap Rekber & Peran Rekbersafe.id",
+  "description": "Panduan lengkap transaksi game aman, tips memilih rekber terpercaya, dan peran rekbersafe.id dalam menjaga keamanan transaksi digital.",
+  "author": {
+    "@type": "Organization",
+    "name": "REKBERSAFE.ID NEWS"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "REKBERSAFE.ID NEWS",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://github.com/rekbersafeid/imageslinks/blob/main/rekber.png?raw=true"
+    }
+  }
+}
+</script>
+
+</body>
+</html>

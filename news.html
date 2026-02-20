@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>News | REKBERSAFE.ID</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* khusus news page */
+    .news-page {
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .news-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      border-left: 5px solid #c40000;
+      padding-left: 12px;
+      margin-bottom: 20px;
+    }
+
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 16px;
+    }
+
+    .news-card {
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      cursor: pointer;
+      transition: transform .2s;
+    }
+
+    .news-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .news-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+
+    .news-card .content {
+      padding: 10px;
+    }
+
+    .news-card h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .news-card p {
+      font-size: .8rem;
+      color: #555;
+    }
+
+    @media (min-width: 768px) {
+      .news-card img {
+        height: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+
+    <div class="brand">
+      <h1>REKBERSAFE.ID</h1>
+      <span class="tagline">MOBA NEWS</span>
+    </div>
+
+    <nav class="nav">
+      <ul>
+        <li><a href="index.html">HOME</a></li>
+        <li><a href="news.html">NEWS</a></li>
+        <li><a href="about.html">ABOUT</a></li>
+      </ul>
+    </nav>
+
+  </div>
+  <div class="header-divider"></div>
+</header>
+
+<main class="news-page">
+  <h1 class="news-title">Semua Berita MOBA</h1>
+
+  <div id="all-news" class="news-grid"></div>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer-news">
+
+  <!-- TOP FOOTER -->
+  <div class="footer-top">
+    <div class="footer-wrap">
+
+      <div class="footer-brand">
+        <h3>REKBERSAFE.ID NEWS</h3>
+        <p>
+          REKBERSAFE.ID NEWS adalah portal berita MOBA & gaming Indonesia
+          yang menyajikan informasi, strategi, edukasi transaksi aman,
+          serta wawasan dunia esports secara independen dan terpercaya.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Menu</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="news.html">News</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Kategori</h4>
+        <ul>
+          <li><a href="#">MOBA</a></li>
+          <li><a href="#">Esports</a></li>
+          <li><a href="#">Tips Game</a></li>
+          <li><a href="#">Edukasi</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Ikuti Kami</h4>
+        <a
+          href="https://instagram.com/rekbersafe.id"
+          target="_blank"
+          class="footer-ig"
+        >
+          Instagram @rekbersafe.id
+        </a>
+        <p class="footer-small">
+          Informasi rekber & keamanan transaksi game terverifikasi.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="footer-divider"></div>
+
+  <!-- BOTTOM FOOTER -->
+  <div class="footer-bottom">
+    <div class="footer-wrap footer-bottom-wrap">
+      <p>
+        © 2026 <strong>REKBERSAFE.ID NEWS</strong>. All rights reserved.
+      </p>
+      <p class="footer-disclaimer">
+        Seluruh konten bersifat informatif & edukatif.
+        Rekbersafe.id berita terbaik masa kini seputar moba
+      </p>
+    </div>
+  </div>
+
+</footer>
+
+<script>
+const BIN_URL = "https://api.jsonbin.io/v3/b/6994eec043b1c97be986f762";
+const API_KEY = "$2a$10$CRpUuQhcfh0vNYFxICLlwO7LrdzbWhCKwXJKD44is4DkVq8SjXv8G";
+
+async function loadAllNews() {
+  try {
+    const res = await fetch(BIN_URL, {
+      headers: {
+        "X-Master-Key": API_KEY
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error("Fetch gagal");
+    }
+
+    const json = await res.json();
+    const news = json.record.news || [];
+
+    const container = document.getElementById("all-news");
+    container.innerHTML = "";
+
+    if (!news.length) {
+      container.innerHTML = "<p>Belum ada berita.</p>";
+      return;
+    }
+
+    // urutkan terbaru
+    news
+      .slice()
+      .reverse()
+      .forEach(item => {
+        const card = document.createElement("div");
+        card.className = "news-card";
+
+        card.onclick = () => {
+          location.href = `detail.html?id=${item.id}`;
+        };
+
+        card.innerHTML = `
+          <img src="${item.image}" alt="${item.title}">
+          <div class="content">
+            <h3>${item.title}</h3>
+            <p>${item.excerpt}</p>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+  } catch (err) {
+    console.error("ERROR LOAD NEWS:", err);
+    document.getElementById("all-news").innerHTML =
+      "<p>Gagal memuat berita.</p>";
+  }
+}
+
+loadAllNews();
+</script>
+
+</body>
+</html>
